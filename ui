@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloom - Mood Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .date-time {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .content-wrapper {
+            max-width: 1400px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .flower-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .flower-container {
+            width: 400px;
+            height: 500px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            backdrop-filter: blur(10px);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .flower {
+            position: relative;
+            transform: scale(1.2);
+            transition: all 0.5s ease;
+        }
+
+        .flower-center {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #FFD93D, #FFB84D);
+            border-radius: 50%;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            box-shadow: 0 5px 25px rgba(255, 193, 7, 0.5);
+        }
+
+        .petal {
+            position: absolute;
+            width: 50px;
+            height: 80px;
+            background: linear-gradient(135deg, #FFE066, #FFD93D);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            box-shadow: 0 2px 10px rgba(255, 193, 7, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .petal:nth-child(1) { transform: rotate(0deg) translateY(-60px); }
+        .petal:nth-child(2) { transform: rotate(45deg) translateY(-60px); }
+        .petal:nth-child(3) { transform: rotate(90deg) translateY(-60px); }
+        .petal:nth-child(4) { transform: rotate(135deg) translateY(-60px); }
+        .petal:nth-child(5) { transform: rotate(180deg) translateY(-60px); }
+        .petal:nth-child(6) { transform: rotate(225deg) translateY(-60px); }
+        .petal:nth-child(7) { transform: rotate(270deg) translateY(-60px); }
+        .petal:nth-child(8) { transform: rotate(315deg) translateY(-60px); }
+
+        .stem {
+            position: absolute;
+            width: 8px;
+            height: 200px;
+            background: linear-gradient(180deg, #4CAF50, #2E7D32);
+            bottom: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 0 0 4px 4px;
+            z-index: 1;
+        }
+
+        .leaf {
+            position: absolute;
+            width: 40px;
+            height: 20px;
+            background: linear-gradient(135deg, #66BB6A, #4CAF50);
+            border-radius: 0 100% 0 100%;
+            bottom: 100px;
+            left: -35px;
+            transform: rotate(-45deg);
+        }
+
+        .controls-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.1);
+        }
+
+        .mood-display {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2.5rem;
+        }
+
+        .mood-title {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .mood-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .mood-stat {
+            text-align: center;
+        }
+
+        .mood-stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .mood-stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .slider-container {
+            margin-bottom: 2.5rem;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .slider-label {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .slider-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .motivation-icon { background: linear-gradient(135deg, #FFD93D, #FFB84D); }
+        .focus-icon { background: linear-gradient(135deg, #4CAF50, #66BB6A); }
+        .stress-icon { background: linear-gradient(135deg, #FF6B6B, #FF8E53); }
+
+        .slider-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .slider-description {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 0.8rem;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 10px;
+            outline: none;
+            -webkit-appearance: none;
+            background: #e0e0e0;
+            position: relative;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider.motivation {
+            background: linear-gradient(to right, #e0e0e0 0%, #FFD93D 100%);
+        }
+
+        .slider.focus {
+            background: linear-gradient(to right, #e0e0e0 0%, #4CAF50 100%);
+        }
+
+        .slider.stress {
+            background: linear-gradient(to right, #4CAF50 0%, #FF6B6B 100%);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 3rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f5ff;
+            transform: translateY(-2px);
+        }
+
+        .log-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .log-modal.active {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .modal-overlay.active {
+            display: block;
+        }
+
+        @media (max-width: 1024px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .flower-container {
+                width: 300px;
+                height: 400px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .controls-section {
+                padding: 2rem;
+            }
+
+            .mood-stats {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                🌻 Bloom
+            </div>
+            <div class="date-time" id="dateTime"></div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="content-wrapper">
+            <div class="flower-section">
+                <div class="flower-container">
+                    <div class="flower" id="flower">
+                        <div class="petal"></div>
+                        <div class="petal"></div>
+                        <div class="petal"></div>
+                        <div class="petal"></div>
+                        <div class="petal"></div>
+                        <div class="petal"></div>
+                        <div class="petal"></div>
+                        <div class="petal"></div>
+                        <div class="flower-center" id="flowerFace">😊</div>
+                        <div class="stem">
+                            <div class="leaf"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls-section">
+                <div class="mood-display">
+                    <h2 class="mood-title">Current Mood</h2>
+                    <div class="mood-stats">
+                        <div class="mood-stat">
+                            <div class="mood-stat-label">Motivation</div>
+                            <div class="mood-stat-value" id="motivationValue">70</div>
+                        </div>
+                        <div class="mood-stat">
+                            <div class="mood-stat-label">Focus</div>
+                            <div class="mood-stat-value" id="focusValue">50</div>
+                        </div>
+                        <div class="mood-stat">
+                            <div class="mood-stat-label">Calm</div>
+                            <div class="mood-stat-value" id="calmValue">90</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slider-container">
+                    <div class="slider-header">
+                        <div class="slider-label">
+                            <span class="slider-icon motivation-icon">☀️</span>
+                            Motivation
+                        </div>
+                        <span class="slider-value" id="motivationSliderValue">70</span>
+                    </div>
+                    <div class="slider-description">Height, Bloom & Sun - How energized do you feel?</div>
+                    <input type="range" class="slider motivation" id="motivationSlider" min="0" max="100" value="70">
+                </div>
+
+                <div class="slider-container">
+                    <div class="slider-header">
+                        <div class="slider-label">
+                            <span class="slider-icon focus-icon">🎯</span>
+                            Focus
+                        </div>
+                        <span class="slider-value" id="focusSliderValue">50</span>
+                    </div>
+                    <div class="slider-description">Steadiness & Stem - How concentrated is your mind?</div>
+                    <input type="range" class="slider focus" id="focusSlider" min="0" max="100" value="50">
+                </div>
+
+                <div class="slider-container">
+                    <div class="slider-header">
+                        <div class="slider-label">
+                            <span class="slider-icon stress-icon">💨</span>
+                            Stress
+                        </div>
+                        <span class="slider-value" id="stressSliderValue">10</span>
+                    </div>
+                    <div class="slider-description">Droop & Color - How much pressure do you feel?</div>
+                    <input type="range" class="slider stress" id="stressSlider" min="0" max="100" value="10">
+                </div>
+
+                <div class="buttons">
+                    <button class="btn btn-primary" onclick="logMood()">
+                        📊 Log Mood
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearLog()">
+                        🔄 Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="log-modal" id="logModal">
+        <h2 style="margin-bottom: 1rem; color: #667eea;">✅ Mood Logged!</h2>
+        <p style="color: #666;">Your mood has been successfully recorded.</p>
+        <button class="btn btn-primary" style="margin-top: 1.5rem; width: 100%;" onclick="closeModal()">OK</button>
+    </div>
+
+    <script>
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            document.getElementById('dateTime').textContent = now.toLocaleDateString('en-US', options);
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 60000);
+
+        // Slider functionality
+        const motivationSlider = document.getElementById('motivationSlider');
+        const focusSlider = document.getElementById('focusSlider');
+        const stressSlider = document.getElementById('stressSlider');
+        const flower = document.getElementById('flower');
+        const flowerFace = document.getElementById('flowerFace');
+        const petals = document.querySelectorAll('.petal');
+        const stem = document.querySelector('.stem');
+
+        function updateFlower() {
+            const motivation = parseInt(motivationSlider.value);
+            const focus = parseInt(focusSlider.value);
+            const stress = parseInt(stressSlider.value);
+            
+            // Update display values
+            document.getElementById('motivationValue').textContent = motivation;
+            document.getElementById('motivationSliderValue').textContent = motivation;
+            document.getElementById('focusValue').textContent = focus;
+            document.getElementById('focusSliderValue').textContent = focus;
+            document.getElementById('calmValue').textContent = 100 - stress;
+            document.getElementById('stressSliderValue').textContent = stress;
+            
+            // Update flower size based on motivation
+            const scale = 0.8 + (motivation / 100) * 0.6;
+            flower.style.transform = `scale(${scale})`;
+            
+            // Update petal color based on stress
+            const hue = 50 - (stress / 100) * 50; // From yellow to gray
+            const saturation = 100 - (stress / 100) * 80;
+            petals.forEach(petal => {
+                petal.style.background = `linear-gradient(135deg, hsl(${hue}, ${saturation}%, 70%), hsl(${hue}, ${saturation}%, 60%))`;
+            });
+            
+            // Update stem straightness based on focus
+            const skew = (50 - focus) / 10;
+            stem.style.transform = `translateX(-50%) skewX(${skew}deg)`;
+            
+            // Update face emoji based on overall mood
+            const overallMood = (motivation + focus + (100 - stress)) / 3;
+            if (overallMood > 70) {
+                flowerFace.textContent = '😊';
+            } else if (overallMood > 40) {
+                flowerFace.textContent = '🙂';
+            } else {
+                flowerFace.textContent = '😔';
+            }
+            
+            // Update petal spread based on motivation
+            petals.forEach((petal, index) => {
+                const baseAngle = index * 45;
+                const spread = 40 + (motivation / 100) * 20;
+                petal.style.transform = `rotate(${baseAngle}deg) translateY(-${spread}px)`;
+            });
+        }
+
+        motivationSlider.addEventListener('input', updateFlower);
+        focusSlider.addEventListener('input', updateFlower);
+        stressSlider.addEventListener('input', updateFlower);
+
+        // Modal functionality
+        function logMood() {
+            const modalOverlay = document.getElementById('modalOverlay');
+            const logModal = document.getElementById('logModal');
+            modalOverlay.classList.add('active');
+            logModal.classList.add('active');
+            
+            // Store mood data (in a real app, this would be sent to a server)
+            const moodData = {
+                timestamp: new Date().toISOString(),
+                motivation: motivationSlider.value,
+                focus: focusSlider.value,
+                stress: stressSlider.value
+            };
+            console.log('Mood logged:', moodData);
+            
+            // You could store in localStorage
+            const history = JSON.parse(localStorage.getItem('moodHistory') || '[]');
+            history.push(moodData);
+            localStorage.setItem('moodHistory', JSON.stringify(history));
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            document.getElementById('logModal').classList.remove('active');
+        }
+
+        function clearLog() {
+            motivationSlider.value = 50;
+            focusSlider.value = 50;
+            stressSlider.value = 50;
+            updateFlower();
+        }
+
+        // Initialize flower
+        updateFlower();
+
+        // Add smooth color transitions on load
+        setTimeout(() => {
+            document.querySelectorAll('.petal').forEach(petal => {
+                petal.style.transition = 'all 0.5s ease';
+            });
+        }, 100);
+    </script>
+</body>
+</html>
